@@ -23,11 +23,13 @@ or
 
 
 By default, countdown counts down to 8 hours, but countdown will take an
-arbitrary integer and count down to that many hours instead
+arbitrary integer argument and count down to that many hours instead
+
 
 $ ./countdown -h
-usage: countdown [-h] hours
+usage: countdown [-h] [-H HOURS]
 
-positional arguments:
-  hours
+optional arguments:
+  -h, --help            show this help message and exit
+    -H HOURS, --hours HOURS
 
