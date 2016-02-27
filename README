@@ -1,0 +1,31 @@
+place flaccid and countdown somewhere in your PATH
+
+I like to create $HOME/bin and add $HOME/bin to my path, then place fun
+binaries in there
+
+run flaccid to reset your starttime to the current time
+
+countdown relies on the existence of the COLUMNS environment variable. This
+environment variable is not exported to child processes, so you need to do
+this yourself. Bash will do this for you if you place the following into
+your PROMPT_COMMAND environment variable:
+
+	PROMPT_COMMAND="export COLUMNS"
+
+modify your PS1 to include $(countdown)
+e.g.
+
+	PS1='$(countdown)[\u@\h \w]\$ '
+or
+	PS1="\$(countdown)[\u@\h \w]\$ "
+
+
+By default, countdown counts down to 8 hours, but countdown will take an
+arbitrary integer and count down to that many hours instead
+
+$ ./countdown -h
+usage: countdown [-h] hours
+
+positional arguments:
+  hours
+
