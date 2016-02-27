@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import termios
-import fcntl
-import struct
 import sys, os
 from datetime import datetime,timedelta
 from argparse import ArgumentParser
