@@ -34,6 +34,8 @@ def render_remaining_time(availablewidth, remaining_time):
 
 def render_percentage(availablewidth, percentage):
     string = '%d%%' % (int(percentage * 100))
+    if availablewidth < 6:
+        return '', 0
     return string, (availablewidth/2) - (len(string)/2)
 
 def get_start_time():
@@ -67,7 +69,8 @@ def main():
     canvas = render(canvas, art, idx)
     art,idx = render_bar(len(canvas), progress)
     canvas = render(canvas, art, idx)
-    art,idx = render_percentage(len(canvas), progress)
+    percentage,percentageidx = render_percentage(len(art), progress)
+    art = render(art, percentage, percentageidx)
     canvas = render(canvas, art, idx)
     print canvas
     return 0 if args.exit_code is None else args.exit_code
