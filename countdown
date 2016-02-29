@@ -11,21 +11,29 @@ def print_countdown(out, progress):
     print >>out, '[8' + '='*(fill) + 'D' + ' '*void + ']'
 
 def get_start_time():
-    return datetime.strptime(open(os.path.join(os.getenv('HOME'),'.starttime'),'r').read(), '%Y-%m-%d %H:%M:%S\n')
+    try:
+        f = open(os.path.join(os.getenv('HOME'),'.starttime'),'r')
+    except:
+        return None
+    return datetime.strptime(f.read(), '%Y-%m-%d %H:%M:%S\n')
 
 def main():
-	parser = ArgumentParser()
-	parser.add_argument('-H','--hours', default=8, type=int)
-	args = parser.parse_args()
-	start = get_start_time()
-	now = datetime.now()
-	delta = now - start
-	seconds = args.hours*3600.0
-	progress = delta.total_seconds() / seconds
-	if progress > 1.0: progress = 1.0
-	elif progress < 0.0: progress = 0.0
-	print_countdown(sys.stdout, progress)
-	return 0
+    parser = ArgumentParser()
+    parser.add_argument('-H','--hours', default=8, type=int)
+    parser.add_argument('-e','--exit-code', default=None, type=int,
+        help='Yield this exit code to the shell (for exit code pass through)')
+    args = parser.parse_args()
+    start = get_start_time()
+    if start is None:
+        return 1 if args.exit_code is None else args.exit_code
+    now = datetime.now()
+    delta = now - start
+    seconds = args.hours*3600.0
+    progress = delta.total_seconds() / seconds
+    if progress > 1.0: progress = 1.0
+    elif progress < 0.0: progress = 0.0
+    print_countdown(sys.stdout, progress)
+    return 0 if args.exit_code is None else args.exit_code
 
 if '__main__' == __name__:
-	sys.exit(main())
+    sys.exit(main())
