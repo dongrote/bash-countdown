@@ -3,26 +3,56 @@ import sys, os
 from datetime import datetime,timedelta
 from argparse import ArgumentParser
 
-def print_countdown(out, progress):
-    cols = int(os.getenv('COLUMNS'))
-    fill = int(cols * progress) - len('[8D]')
-    if fill < 0: fill = 0
-    void = (cols - fill) - len('[8D]')
-    print >>out, '[8' + '='*(fill) + 'D' + ' '*void + ']'
+dateformat = '%Y-%m-%d %H:%M:%S\n'
+
+def reset():
+    open(os.path.join(os.getenv('HOME'),'.starttime'), 'w').write(str(datetime.now().strftime(dateformat)))
+
+def blank_canvas():
+    width = int(os.getenv('COLUMNS'))
+    return '[' + ' '*(width-2) + ']'
+
+def render(canvas, line, start):
+    cols = [c for c in canvas]
+    i = start
+    for c in line:
+        cols[i] = c
+        i = i +1
+    return ''.join(cols)
+
+def render_bar(availablewidth, progress):
+    availablewidth = availablewidth-2
+    fill = int(progress * (availablewidth - len('8D')))
+    return '8' + '='*fill + 'D', 1
+
+def render_remaining_time(availablewidth, remaining_time):
+    rounded_time = timedelta(remaining_time.days, remaining_time.seconds)
+    line = str(rounded_time)[:-3]
+    if len(line) > availablewidth:
+        line = line[:availablewidth]
+    return line, availablewidth - len(line) - 1
+
+def render_percentage(availablewidth, percentage):
+    string = '%d%%' % (int(percentage * 100))
+    return string, (availablewidth/2) - (len(string)/2)
 
 def get_start_time():
     try:
         f = open(os.path.join(os.getenv('HOME'),'.starttime'),'r')
     except:
         return None
-    return datetime.strptime(f.read(), '%Y-%m-%d %H:%M:%S\n')
+    return datetime.strptime(f.read(), dateformat)
 
 def main():
     parser = ArgumentParser()
     parser.add_argument('-H','--hours', default=8, type=int)
     parser.add_argument('-e','--exit-code', default=None, type=int,
         help='Yield this exit code to the shell (for exit code pass through)')
+    parser.add_argument('-r', '--reset', default=False, action='store_true')
     args = parser.parse_args()
+    if args.reset:
+        reset()
+        return 0
     start = get_start_time()
     if start is None:
         return 1 if args.exit_code is None else args.exit_code
@@ -32,7 +62,14 @@ def main():
     progress = delta.total_seconds() / seconds
     if progress > 1.0: progress = 1.0
     elif progress < 0.0: progress = 0.0
-    print_countdown(sys.stdout, progress)
+    canvas = blank_canvas()
+    art,idx = render_remaining_time(len(canvas), timedelta(0,int(seconds)) - delta)
+    canvas = render(canvas, art, idx)
+    art,idx = render_bar(len(canvas), progress)
+    canvas = render(canvas, art, idx)
+    art,idx = render_percentage(len(canvas), progress)
+    canvas = render(canvas, art, idx)
+    print canvas
     return 0 if args.exit_code is None else args.exit_code
 
 if '__main__' == __name__:

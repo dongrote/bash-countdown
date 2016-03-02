@@ -5,7 +5,7 @@ place flaccid and countdown somewhere in your PATH
 I like to create $HOME/bin and add $HOME/bin to my path, then place fun
 binaries in there
 
-run flaccid to reset your starttime to the current time
+run `countdown --reset` to reset your starttime to the current time
 
 countdown relies on the existence of the COLUMNS environment variable. This
 environment variable is not exported to child processes, so you need to do
@@ -32,4 +32,3 @@ usage: countdown [-h] [-H HOURS]
 optional arguments:
   -h, --help            show this help message and exit
     -H HOURS, --hours HOURS
-
